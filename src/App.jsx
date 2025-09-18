@@ -24,6 +24,8 @@ const App = () => {
   const [showScroll, setShowScroll] = useState(false);
   const scrollRef = useRef(null);
 
+
+  
   // Initialize Locomotive Scroll
   useEffect(() => {
     const scroll = new LocomotiveScroll({
