@@ -23,31 +23,25 @@ gsap.registerPlugin(ScrollTrigger);
 const App = () => {
   const [showScroll, setShowScroll] = useState(false);
   const scrollRef = useRef(null);
-  const locoScrollRef = useRef(null);
 
-  // ✅ Locomotive + ScrollTrigger setup
+  // Initialize Locomotive Scroll
   useEffect(() => {
-    if (!scrollRef.current) return;
-
-    const scrollEl = scrollRef.current;
-
-    const locoScroll = new LocomotiveScroll({
-      el: scrollEl,
+    const scroll = new LocomotiveScroll({
+      el: scrollRef.current,
       smooth: true,
       lerp: 0.08,
       smartphone: { smooth: true },
       tablet: { smooth: true },
     });
 
-    locoScrollRef.current = locoScroll;
+    // Update ScrollTrigger on Locomotive Scroll
+    scroll.on("scroll", ScrollTrigger.update);
 
-    locoScroll.on("scroll", ScrollTrigger.update);
-
-    ScrollTrigger.scrollerProxy(scrollEl, {
+    ScrollTrigger.scrollerProxy(scrollRef.current, {
       scrollTop(value) {
         return arguments.length
-          ? locoScroll.scrollTo(value, 0, 0)
-          : locoScroll.scroll.instance.scroll.y;
+          ? scroll.scrollTo(value, 0, 0)
+          : scroll.scroll.instance.scroll.y;
       },
       getBoundingClientRect() {
         return {
@@ -57,35 +51,28 @@ const App = () => {
           height: window.innerHeight,
         };
       },
-      pinType: scrollEl.style.transform ? "transform" : "fixed",
+      pinType: scrollRef.current.style.transform ? "transform" : "fixed",
     });
 
-    ScrollTrigger.addEventListener("refresh", () => locoScroll.update());
+    ScrollTrigger.addEventListener("refresh", () => scroll.update());
     ScrollTrigger.refresh();
 
-    return () => {
-      locoScroll.destroy();
-      ScrollTrigger.removeEventListener("refresh", () => locoScroll.update());
-    };
+    return () => scroll.destroy();
   }, []);
 
-  // ✅ Back-to-top button (using locomotive, not window.scrollY)
+  // Scroll-to-top button
   useEffect(() => {
-    const checkScroll = () => {
-      if (!locoScrollRef.current) return;
-      const y = locoScrollRef.current.scroll.instance.scroll.y;
-      setShowScroll(y > 300);
+    const handleScroll = () => {
+      if (window.scrollY > 300) setShowScroll(true);
+      else setShowScroll(false);
     };
 
-    locoScrollRef.current?.on("scroll", checkScroll);
-
-    return () => {
-      locoScrollRef.current?.off("scroll", checkScroll);
-    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const scrollToTop = () => {
-    locoScrollRef.current?.scrollTo(0, { duration: 800, disableLerp: false });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
