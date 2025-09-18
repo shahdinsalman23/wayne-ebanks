@@ -9,7 +9,6 @@ const servicesData = [
     description:
       "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s.",
   },
-  
   {
     id: 2,
     icon: <FaMobileAlt className="text-5xl text-[#3692e5] mb-4" />,
